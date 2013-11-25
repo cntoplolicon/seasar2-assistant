@@ -19,10 +19,11 @@ public class ScopeStringChecker implements IMarkerResolutionGenerator2, IElement
     public static final String PAGE_SCOPE_FIELD = "PAGE_SCOPE";
     public static final String REDIRECT_SCOPE_FIELD = "REDIRECT_SCOPE";
     public static final String SUBAPPLICATION_SCOPE_FIELD = "SUBAPPLICATION_SCOPE";
-    public static final String MARKER_SCOPE_STRING = "cntoplolicon.teedaassist.marker.scopestring";
     public static final String MARKER_SCOPE_STRING_DUPLICATE = "cntoplolicon.teedaassist.marker.scopestring.duplicatefield";
     public static final String MARKER_SCOPE_STRING_MISSING = "cntoplolicon.teedaassist.marker.scopestring.missingfield";
-    public static final String MARKER_ATTR_FULL_LENGTH = "cntoplolicon.teedaassist.marker.fulllength";
+
+    public static final String MARKER_ATTR_CLEAR_RANGE_START = "cntoplolicon.teedaassist.attr.clearstart";
+    public static final String MARKER_ATTR_CLEAR_RANGE_END = "cntoplolicon.teedaassist.attr.clearend";
 
     @Override
     public IMarkerResolution[] getResolutions(IMarker marker) {
