@@ -7,5 +7,28 @@
             class="cntoplolicon.teedaassist.startup.TeedaAssistantStartup">
       </startup>
    </extension>
+   <extension
+         id="cntoplolicon.teedaassist.marker.scopestring"
+         point="org.eclipse.core.resources.markers">
+      <persistent
+            value="true">
+      </persistent>
+      <super
+            type="org.eclipse.jdt.core.problem">
+      </super>
+      <attribute
+            name="cntoplolicon.teedaassist.marker.attr.clearstart">
+      </attribute>
+      <attribute
+            name="cntoplolicon.teedaassist.marker.attr.clearend">
+      </attribute>
+   </extension>
+   <extension
+         point="org.eclipse.ui.ide.markerResolution">
+      <markerResolutionGenerator
+            class="cntoplolicon.teedaassist.checker.ScopeStringChecker"
+            markerType="cntoplolicon.teedaassist.marker.scopestring">
+      </markerResolutionGenerator>
+   </extension>
 
 </plugin>

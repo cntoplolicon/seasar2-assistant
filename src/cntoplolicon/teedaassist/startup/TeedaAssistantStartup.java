@@ -8,10 +8,10 @@ import cntoplolicon.teedaassist.checker.ScopeStringChecker;
 
 public class TeedaAssistantStartup implements IStartup {
 
-    @Override
-    public void earlyStartup() {
-        JavaCore.addElementChangedListener(new ScopeStringChecker(),
-                ElementChangedEvent.POST_CHANGE);
-    }
+	@Override
+	public void earlyStartup() {
+		JavaCore.addElementChangedListener(new ScopeStringChecker(),
+				ElementChangedEvent.POST_RECONCILE | ElementChangedEvent.POST_CHANGE);
+	}
 
 }
