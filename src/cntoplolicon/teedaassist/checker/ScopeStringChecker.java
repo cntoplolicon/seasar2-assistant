@@ -32,7 +32,6 @@ public class ScopeStringChecker implements IMarkerResolutionGenerator2, IElement
 
 	public static final int MARKER_TYPE_DUPLICATE = 0;
 	public static final int MARKER_TYPE_MISSING = 1;
-	public static final int MARKER_TYPE_MODIFIER = 2;
 
 	@Override
 	public void elementChanged(ElementChangedEvent event) {
@@ -81,11 +80,11 @@ public class ScopeStringChecker implements IMarkerResolutionGenerator2, IElement
 		});
 	}
 
-	static class RemoveFieldResolution implements IMarkerResolution {
+	static class RemovePropertyResolution implements IMarkerResolution {
 
 		@Override
 		public String getLabel() {
-			return "remove this field";
+			return "remove this property";
 		}
 
 		@Override
@@ -122,7 +121,7 @@ public class ScopeStringChecker implements IMarkerResolutionGenerator2, IElement
 	@Override
 	public IMarkerResolution[] getResolutions(IMarker marker) {
 		if (hasResolutions(marker)) {
-			return new IMarkerResolution[] { new RemoveFieldResolution() };
+			return new IMarkerResolution[] { new RemovePropertyResolution() };
 		} else {
 			return new IMarkerResolution[] {};
 		}

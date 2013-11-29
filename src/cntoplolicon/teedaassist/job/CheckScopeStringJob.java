@@ -25,7 +25,6 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ITypeBinding;
-import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
@@ -46,18 +45,18 @@ public class CheckScopeStringJob extends Job {
 		this.type = type;
 	}
 
-	private Map<String, Object> createLiteralMarkerAttrs(StringLiteral literal, String field,
-			int position, boolean singleField) {
+	private Map<String, Object> createLiteralMarkerAttrs(StringLiteral literal, String property,
+			int position, boolean singleProperty) {
 		String literalValue = literal.getLiteralValue();
 		int clearRangeStart = 0, clearRangeEnd = 0;
-		if (singleField) {
+		if (singleProperty) {
 			clearRangeStart = position;
-			clearRangeEnd = position + field.length();
+			clearRangeEnd = position + property.length();
 		} else {
 			int lastComma = literalValue.substring(0, position).lastIndexOf(',');
 			if (lastComma != -1) {
 				clearRangeStart = lastComma;
-				clearRangeEnd = position + field.length();
+				clearRangeEnd = position + property.length();
 			} else {
 				int nextComma = literalValue.indexOf(',', position);
 				if (nextComma != -1) {
@@ -70,7 +69,7 @@ public class CheckScopeStringJob extends Job {
 		int startPosition = literal.getStartPosition() + 1;
 		Map<String, Object> attributes = new HashMap<String, Object>();
 		attributes.put(IMarker.CHAR_START, startPosition + position);
-		attributes.put(IMarker.CHAR_END, startPosition + position + field.length());
+		attributes.put(IMarker.CHAR_END, startPosition + position + property.length());
 		attributes.put(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 
 		if (clearRangeEnd != 0) {
@@ -98,100 +97,58 @@ public class CheckScopeStringJob extends Job {
 		}
 	}
 
-	public String getDuplicateErrorMessage(String field) {
-		return new StringBuilder().append("duplicate declaration of ").append(field).toString();
+	public String getDuplicateErrorMessage(String property) {
+		return new StringBuilder().append("duplicate declaration of ").append(property).toString();
 	}
 
-	private void markDuplicateField(IResource resource, String field, int lineNumber) {
+	private void markDuplicateProperty(IResource resource, String property, int lineNumber) {
 		Map<String, Object> attributes = createLineMarkerAttrs(lineNumber);
 		attributes.put(ScopeStringChecker.MARKER_ATTR_TYPE,
 				ScopeStringChecker.MARKER_TYPE_DUPLICATE);
 		attributes.put(ScopeStringChecker.MARKER_ATTR_TYPE,
 				ScopeStringChecker.MARKER_TYPE_DUPLICATE);
-		attributes.put(IMarker.MESSAGE, getDuplicateErrorMessage(field));
+		attributes.put(IMarker.MESSAGE, getDuplicateErrorMessage(property));
 		createScopeStringMarkerWithAttrs(resource, attributes);
 	}
 
-	private void markDuplicateField(IResource resource, StringLiteral literal, String field,
-			int position, boolean singleField) {
-		Map<String, Object> attributes = createLiteralMarkerAttrs(literal, field, position,
-				singleField);
+	private void markDuplicateProperty(IResource resource, StringLiteral literal, String property,
+			int position, boolean singleProperty) {
+		Map<String, Object> attributes = createLiteralMarkerAttrs(literal, property, position,
+				singleProperty);
 		attributes.put(ScopeStringChecker.MARKER_ATTR_TYPE,
 				ScopeStringChecker.MARKER_TYPE_DUPLICATE);
-		attributes.put(IMarker.MESSAGE, getDuplicateErrorMessage(field));
+		attributes.put(IMarker.MESSAGE, getDuplicateErrorMessage(property));
 		createScopeStringMarkerWithAttrs(resource, attributes);
 	}
 
-	private String getMissingErrorMessage(String field) {
-		return new StringBuilder().append("field ").append(field).append(" doesn't exist")
+	private String getMissingErrorMessage(String property) {
+		return new StringBuilder().append("property ").append(property).append(" doesn't exist")
 				.toString();
 	}
 
-	private void markMissingField(IResource resource, StringLiteral literal, String field,
-			int position, boolean singleField) {
-		Map<String, Object> attributes = createLiteralMarkerAttrs(literal, field, position,
-				singleField);
-		attributes.put(IMarker.MESSAGE, getMissingErrorMessage(field));
+	private void markMissingProperty(IResource resource, StringLiteral literal, String property,
+			int position, boolean singleProperty) {
+		Map<String, Object> attributes = createLiteralMarkerAttrs(literal, property, position,
+				singleProperty);
+		attributes.put(IMarker.MESSAGE, getMissingErrorMessage(property));
 		attributes.put(ScopeStringChecker.MARKER_ATTR_TYPE, ScopeStringChecker.MARKER_TYPE_MISSING);
 		createScopeStringMarkerWithAttrs(resource, attributes);
 	}
 
-	private void markMissingField(IResource resource, String field, int lineNumber) {
+	private void markMissingProperty(IResource resource, String property, int lineNumber) {
 		Map<String, Object> attributes = createLineMarkerAttrs(lineNumber);
-		attributes.put(IMarker.MESSAGE, getMissingErrorMessage(field));
+		attributes.put(IMarker.MESSAGE, getMissingErrorMessage(property));
 		createScopeStringMarkerWithAttrs(resource, attributes);
 	}
 
-	private List<Integer> checkInvalidModifiers(IVariableBinding vb) {
-		List<Integer> modifiers = new ArrayList<Integer>();
-		int[] invalidModifiers = { Modifier.FINAL, Modifier.STATIC };
-		for (int modifier : invalidModifiers) {
-			if ((vb.getModifiers() & modifier) != 0) {
-				modifiers.add(modifier);
-			}
-		}
-		return modifiers;
-	}
-
-	public String getModifierErrorMessage(String field, List<Integer> modifiers) {
-		return new StringBuilder().append("field ").append(field).append(" cannot be ")
+	public String getModifierErrorMessage(String property, List<Integer> modifiers) {
+		return new StringBuilder().append("property ").append(property).append(" cannot be ")
 				.append(Modifier.ModifierKeyword.fromFlagValue(modifiers.get(0))).toString();
-	}
-
-	private void markInvalidModifiers(IResource resource, StringLiteral literal, String field,
-			int position, boolean singleField, List<Integer> modifiers) {
-		Map<String, Object> attributes = createLiteralMarkerAttrs(literal, field, position,
-				singleField);
-		attributes
-				.put(ScopeStringChecker.MARKER_ATTR_TYPE, ScopeStringChecker.MARKER_TYPE_MODIFIER);
-		String errorMessage = getModifierErrorMessage(field, modifiers);
-		attributes.put(IMarker.MESSAGE, errorMessage);
-		createScopeStringMarkerWithAttrs(resource, attributes);
-	}
-
-	private void markInvalidModifiers(IResource resource, String field, int lineNumber,
-			List<Integer> modifiers) {
-		Map<String, Object> attributes = createLineMarkerAttrs(lineNumber);
-		attributes
-				.put(ScopeStringChecker.MARKER_ATTR_TYPE, ScopeStringChecker.MARKER_TYPE_MODIFIER);
-		String errorMessage = getModifierErrorMessage(field, modifiers);
-		attributes.put(IMarker.MESSAGE, errorMessage);
-		createScopeStringMarkerWithAttrs(resource, attributes);
-	}
-
-	private Map<String, IVariableBinding> getDeclaredFields(TypeDeclaration td) {
-		Map<String, IVariableBinding> declaredFields = new HashMap<String, IVariableBinding>();
-		ITypeBinding binding = td.resolveBinding();
-		IVariableBinding[] vbs = binding.getDeclaredFields();
-		for (IVariableBinding vb : vbs) {
-			declaredFields.put(vb.getName(), vb);
-		}
-		return declaredFields;
 	}
 
 	private void checkScopeStringDecleration(TypeDeclaration td,
 			List<VariableDeclarationFragment> vdfs) throws JavaModelException {
-		final Map<String, IVariableBinding> declaredFields = getDeclaredFields(td);
+		final Set<String> declaredProperties = NamingConventionUtil.getProperties(td);
 		CompilationUnit cu = (CompilationUnit) td.getRoot();
 		final IResource resource = cu.getJavaElement().getUnderlyingResource();
 		if (resource == null) {
@@ -207,71 +164,59 @@ public class CheckScopeStringJob extends Job {
 			if (value == null || value.isEmpty()) {
 				continue;
 			}
-			final List<String> finalFieldsInScope = new ArrayList<String>(Arrays.asList(value
+			final List<String> finalPropertiesInScope = new ArrayList<String>(Arrays.asList(value
 					.split(DELIMITER)));
-			final boolean singleField = finalFieldsInScope.size() == 1;
+			final boolean singleProperty = finalPropertiesInScope.size() == 1;
 
-			final Set<String> processedFields = new HashSet<String>();
+			final Set<String> processedProperties = new HashSet<String>();
 			vdf.accept(new ASTVisitor() {
 				@Override
 				public boolean visit(StringLiteral stringLiteral) {
 					String literalValue = stringLiteral.getLiteralValue();
-					String[] fieldsInScope = literalValue.split(DELIMITER);
-					int[] positions = new int[fieldsInScope.length];
-					for (int i = 0, j = 0; i < fieldsInScope.length; i++) {
-						positions[i] = literalValue.indexOf(fieldsInScope[i], j);
-						j += fieldsInScope[i].length();
+					String[] propertysInScope = literalValue.split(DELIMITER);
+					int[] positions = new int[propertysInScope.length];
+					for (int i = 0, j = 0; i < propertysInScope.length; i++) {
+						positions[i] = literalValue.indexOf(propertysInScope[i], j);
+						j += propertysInScope[i].length();
 					}
 
-					for (int i = 0; i < fieldsInScope.length; i++) {
-						String field = fieldsInScope[i];
-						// string literals and contain a partial name of a field
-						if (!finalFieldsInScope.contains(field)) {
+					for (int i = 0; i < propertysInScope.length; i++) {
+						String property = propertysInScope[i];
+						// string literals and contain a partial name of a
+						// property
+						if (!finalPropertiesInScope.contains(property)) {
 							continue;
 						}
-						finalFieldsInScope.remove(field);
-						if (processedFields.contains(field)) {
-							markDuplicateField(resource, stringLiteral, field, positions[i],
-									singleField);
+						finalPropertiesInScope.remove(property);
+						if (processedProperties.contains(property)) {
+							markDuplicateProperty(resource, stringLiteral, property, positions[i],
+									singleProperty);
 							continue;
 						} else {
-							processedFields.add(field);
+							processedProperties.add(property);
 						}
 
-						if (!declaredFields.containsKey(field)) {
-							markMissingField(resource, stringLiteral, field, positions[i],
-									singleField);
-						} else {
-							IVariableBinding vb = declaredFields.get(field);
-							List<Integer> invalidModifiers = checkInvalidModifiers(vb);
-							if (!invalidModifiers.isEmpty()) {
-								markInvalidModifiers(resource, stringLiteral, field, positions[i],
-										singleField, invalidModifiers);
-							}
+						if (!declaredProperties.contains(property)) {
+							markMissingProperty(resource, stringLiteral, property, positions[i],
+									singleProperty);
 						}
 					}
 					return false;
 				}
 			});
 
-			// remaining fields that not resolved in any string literals
-			for (String field : finalFieldsInScope) {
+			// remaining propertys that not resolved in any string literals
+			for (String property : finalPropertiesInScope) {
 				int lineNumber = cu.getLineNumber(vdf.getStartPosition());
-				if (processedFields.contains(field)) {
-					markDuplicateField(resource, field, lineNumber);
+				if (processedProperties.contains(property)) {
+					markDuplicateProperty(resource, property, lineNumber);
 					continue;
 				} else {
-					processedFields.add(field);
+					processedProperties.add(property);
 				}
 
-				if (!declaredFields.containsKey(field)) {
-					markMissingField(resource, field, lineNumber);
-				} else {
-					IVariableBinding vb = declaredFields.get(field);
-					List<Integer> invalidModifiers = checkInvalidModifiers(vb);
-					if (!invalidModifiers.isEmpty()) {
-						markInvalidModifiers(resource, field, lineNumber, invalidModifiers);
-					}
+				if (!declaredProperties.contains(property)) {
+					markMissingProperty(resource, property, lineNumber);
 				}
 			}
 		}
@@ -293,6 +238,7 @@ public class CheckScopeStringJob extends Job {
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setResolveBindings(true);
 		parser.setSource(cu);
+		parser.setIgnoreMethodBodies(true);
 		CompilationUnit astRoot = (CompilationUnit) parser.createAST(null);
 
 		astRoot.accept(new ASTVisitor() {
