@@ -1,4 +1,4 @@
-package cntoplolicon.teedaassist.visitor;
+package cntoplolicon.seasar2assist.visitor;
 
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;

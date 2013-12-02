@@ -1,4 +1,4 @@
-package cntoplolicon.teedaassist.checker;
+package cntoplolicon.seasar2assist.checker;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
@@ -14,21 +14,21 @@ import org.eclipse.text.edits.DeleteEdit;
 import org.eclipse.ui.IMarkerResolution;
 import org.eclipse.ui.IMarkerResolutionGenerator2;
 
-import cntoplolicon.teedaassist.job.CheckScopeStringJob;
-import cntoplolicon.teedaassist.util.LoggerUtil;
-import cntoplolicon.teedaassist.util.NamingConventionUtil;
-import cntoplolicon.teedaassist.visitor.JavaElementDeltaVisitor;
+import cntoplolicon.seasar2assist.job.CheckScopeStringJob;
+import cntoplolicon.seasar2assist.util.LoggerUtil;
+import cntoplolicon.seasar2assist.util.NamingConventionUtil;
+import cntoplolicon.seasar2assist.visitor.JavaElementDeltaVisitor;
 
 public class ScopeStringChecker implements IMarkerResolutionGenerator2, IElementChangedListener {
 
 	public static final String PAGE_SCOPE_FIELD = "PAGE_SCOPE";
 	public static final String REDIRECT_SCOPE_FIELD = "REDIRECT_SCOPE";
 	public static final String SUBAPPLICATION_SCOPE_FIELD = "SUBAPPLICATION_SCOPE";
-	public static final String MARKER_SCOPE_STRING = "cntoplolicon.teedaassist.marker.scopestring";
+	public static final String MARKER_SCOPE_STRING = "cntoplolicon.seasar2assist.marker.scopestring";
 
-	public static final String MARKER_ATTR_CLEAR_RANGE_START = "cntoplolicon.teedaassist.marker.attr.clearstart";
-	public static final String MARKER_ATTR_CLEAR_RANGE_END = "cntoplolicon.teedaassist.marker.attr.clearend";
-	public static final String MARKER_ATTR_TYPE = "cntoplolicon.teedaassist.marker.attr.type";
+	public static final String MARKER_ATTR_CLEAR_RANGE_START = "cntoplolicon.seasar2assist.marker.attr.clearstart";
+	public static final String MARKER_ATTR_CLEAR_RANGE_END = "cntoplolicon.seasar2assist.marker.attr.clearend";
+	public static final String MARKER_ATTR_TYPE = "cntoplolicon.seasar2assist.marker.attr.type";
 
 	public static final int MARKER_TYPE_DUPLICATE = 0;
 	public static final int MARKER_TYPE_MISSING = 1;

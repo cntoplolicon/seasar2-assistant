@@ -1,4 +1,4 @@
-package cntoplolicon.teedaassist.job;
+package cntoplolicon.seasar2assist.job;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,9 +30,9 @@ import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
-import cntoplolicon.teedaassist.checker.ScopeStringChecker;
-import cntoplolicon.teedaassist.util.LoggerUtil;
-import cntoplolicon.teedaassist.util.NamingConventionUtil;
+import cntoplolicon.seasar2assist.checker.ScopeStringChecker;
+import cntoplolicon.seasar2assist.util.LoggerUtil;
+import cntoplolicon.seasar2assist.util.NamingConventionUtil;
 
 public class CheckScopeStringJob extends Job {
 

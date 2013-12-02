@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: cntoplolicon.teedaassist
 Bundle-SymbolicName: cntoplolicon.teedaassist;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: cntoplolicon.teedaassist.Activator
+Bundle-Activator: cntoplolicon.seasar2assist.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.ui,

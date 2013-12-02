@@ -4,11 +4,11 @@
    <extension
          point="org.eclipse.ui.startup">
       <startup
-            class="cntoplolicon.teedaassist.startup.TeedaAssistantStartup">
+            class="cntoplolicon.seasar2assist.startup.Seasar2AssistantStartup">
       </startup>
    </extension>
    <extension
-         id="cntoplolicon.teedaassist.marker.scopestring"
+         id="cntoplolicon.seasar2assist.marker.scopestring"
          point="org.eclipse.core.resources.markers">
       <persistent
             value="true">
@@ -17,17 +17,17 @@
             type="org.eclipse.jdt.core.problem">
       </super>
       <attribute
-            name="cntoplolicon.teedaassist.marker.attr.clearstart">
+            name="cntoplolicon.seasar2assist.marker.attr.clearstart">
       </attribute>
       <attribute
-            name="cntoplolicon.teedaassist.marker.attr.clearend">
+            name="cntoplolicon.seasar2assist.marker.attr.clearend">
       </attribute>
    </extension>
    <extension
          point="org.eclipse.ui.ide.markerResolution">
       <markerResolutionGenerator
-            class="cntoplolicon.teedaassist.checker.ScopeStringChecker"
-            markerType="cntoplolicon.teedaassist.marker.scopestring">
+            class="cntoplolicon.seasar2assist.checker.ScopeStringChecker"
+            markerType="cntoplolicon.seasar2assist.marker.scopestring">
       </markerResolutionGenerator>
    </extension>
 

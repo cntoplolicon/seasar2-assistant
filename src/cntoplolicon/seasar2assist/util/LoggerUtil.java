@@ -1,9 +1,9 @@
-package cntoplolicon.teedaassist.util;
+package cntoplolicon.seasar2assist.util;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
-import cntoplolicon.teedaassist.Activator;
+import cntoplolicon.seasar2assist.Activator;
 
 public class LoggerUtil {
 

@@ -1,4 +1,4 @@
-package cntoplolicon.teedaassist.util;
+package cntoplolicon.seasar2assist.util;
 
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
