@@ -30,5 +30,18 @@
             markerType="cntoplolicon.seasar2assist.marker.scopestring">
       </markerResolutionGenerator>
    </extension>
+   <extension
+         point="org.eclipse.ui.propertyPages">
+      <page
+            class="cntoplolicon.seasar2assist.preference.Seasar2AssistantPropertyPage"
+            id="seasar2assist.propertyPage"
+            name="Seasar2 Assistant">
+         <enabledWhen>
+            <instanceof
+                  value="org.eclipse.core.resources.IProject">
+            </instanceof>
+         </enabledWhen>
+      </page>
+   </extension>
 
 </plugin>
