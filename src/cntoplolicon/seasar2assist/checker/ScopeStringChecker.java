@@ -1,6 +1,7 @@
 package cntoplolicon.seasar2assist.checker;
 
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ElementChangedEvent;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -15,6 +16,7 @@ import org.eclipse.ui.IMarkerResolution;
 import org.eclipse.ui.IMarkerResolutionGenerator2;
 
 import cntoplolicon.seasar2assist.job.CheckScopeStringJob;
+import cntoplolicon.seasar2assist.preference.ProjectPreferences;
 import cntoplolicon.seasar2assist.util.LoggerUtil;
 import cntoplolicon.seasar2assist.util.NamingConventionUtil;
 import cntoplolicon.seasar2assist.visitor.JavaElementDeltaVisitor;
@@ -35,7 +37,9 @@ public class ScopeStringChecker implements IMarkerResolutionGenerator2, IElement
 
 	@Override
 	public void elementChanged(ElementChangedEvent event) {
+
 		JavaElementDeltaVisitor.accept(event.getDelta(), new JavaElementDeltaVisitor() {
+
 			@Override
 			protected boolean preVisit(IJavaElementDelta delta) {
 				if ((delta.getFlags() & IJavaElementDelta.F_CHILDREN) != 0) {
@@ -50,13 +54,27 @@ public class ScopeStringChecker implements IMarkerResolutionGenerator2, IElement
 			@Override
 			protected boolean visit(ICompilationUnit cu) {
 				try {
+					IResource resource = cu.getUnderlyingResource();
+					if (resource != null) {
+						ProjectPreferences prefs = ProjectPreferences.getPreference(resource
+								.getProject());
+						if (!prefs.isUseSeasar2Assistant() || !prefs.isCheckScopeStrings()) {
+							return false;
+						}
+					}
+				} catch (JavaModelException e) {
+					LoggerUtil.warn(e);
+					return false;
+				}
+
+				try {
 					for (IType type : cu.getTypes()) {
 						if (type.exists()) {
 							visit(type);
 						}
 					}
 				} catch (JavaModelException e) {
-					LoggerUtil.warn(e);
+					LoggerUtil.error(e);
 					return false;
 				}
 				return false;

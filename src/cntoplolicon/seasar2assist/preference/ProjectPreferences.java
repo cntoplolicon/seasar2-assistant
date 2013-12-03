@@ -1,6 +1,9 @@
 package cntoplolicon.seasar2assist.preference;
 
 import java.lang.reflect.Field;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ProjectScope;
@@ -15,17 +18,33 @@ public class ProjectPreferences {
 
 	private IEclipsePreferences projectNode;
 
+	@ProjectProperty
 	private boolean useSeasar2Assistant;
+	@ProjectProperty
 	private boolean checkScopeStrings;
+	@ProjectProperty
 	private boolean generateCommonDaoMethods;
+	@ProjectProperty
 	private String rootPackage;
+	@ProjectProperty
 	private String viewRoot;
 
-	public ProjectPreferences(IProject project) {
+	private static Map<IProject, ProjectPreferences> preferenceMap = Collections
+			.synchronizedMap(new HashMap<IProject, ProjectPreferences>());
+
+	public static ProjectPreferences getPreference(IProject project) {
+		if (!preferenceMap.containsKey(project)) {
+			System.err.println("create new preferences");
+			preferenceMap.put(project, new ProjectPreferences(project));
+		}
+		return preferenceMap.get(project);
+	}
+
+	private ProjectPreferences(IProject project) {
 		IScopeContext projectScope = new ProjectScope(project);
 		projectNode = projectScope.getNode(Seasar2AssistantPlugin.PLUGIN_ID);
 		for (Field field : this.getClass().getDeclaredFields()) {
-			if (field.getName().equals("projectNode")) {
+			if (!field.isAnnotationPresent(ProjectProperty.class)) {
 				continue;
 			}
 			try {
@@ -90,7 +109,7 @@ public class ProjectPreferences {
 
 	public boolean flush() {
 		for (Field field : this.getClass().getDeclaredFields()) {
-			if (field.getName().equals("prject")) {
+			if (!field.isAnnotationPresent(ProjectProperty.class)) {
 				continue;
 			}
 			try {

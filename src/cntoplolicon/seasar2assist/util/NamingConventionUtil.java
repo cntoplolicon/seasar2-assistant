@@ -6,13 +6,18 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IPackageDeclaration;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
+
+import cntoplolicon.seasar2assist.preference.ProjectPreferences;
 
 public class NamingConventionUtil {
 
@@ -29,9 +34,29 @@ public class NamingConventionUtil {
 		return filename.substring(0, filename.length() - JAVA_EXTENSION.length());
 	}
 
+	private static boolean isPageClassCompilationUnit(ICompilationUnit cu) {
+		try {
+			IProject project = cu.getUnderlyingResource().getProject();
+			ProjectPreferences preferences = ProjectPreferences.getPreference(project);
+			String rootPackage = preferences.getRootPackage();
+			if (rootPackage == null || rootPackage.isEmpty()) {
+				return false;
+			}
+			IPackageDeclaration[] pds = cu.getPackageDeclarations();
+			if (pds.length != 1) {
+				return false;
+			}
+			return pds[0].exists() && pds[0].getElementName().startsWith(rootPackage + ".web");
+		} catch (JavaModelException e) {
+			LoggerUtil.error(e);
+			return false;
+		}
+	}
+
 	public static boolean isPageClass(IType type) {
 		ICompilationUnit cu = type.getCompilationUnit();
-		return cu.exists() && getPrimaryClassName(cu).equals(type.getElementName())
+		return isPageClassCompilationUnit(cu)
+				&& getPrimaryClassName(cu).equals(type.getElementName())
 				&& type.getElementName().endsWith(PAGE_CLASS_SUFFIX);
 	}
 
@@ -44,7 +69,8 @@ public class NamingConventionUtil {
 			return false;
 		}
 		ICompilationUnit jmCu = (ICompilationUnit) astCu.getJavaElement();
-		return td.getName().getIdentifier().equals(getPrimaryClassName(jmCu));
+		return isPageClassCompilationUnit(jmCu)
+				&& td.getName().getIdentifier().equals(getPrimaryClassName(jmCu));
 	}
 
 	private static boolean isValidPropertyModifier(int modifer) {

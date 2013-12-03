@@ -6,6 +6,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
@@ -30,6 +32,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import cntoplolicon.seasar2assist.checker.ScopeStringChecker;
 import cntoplolicon.seasar2assist.util.LoggerUtil;
 
 public class Seasar2AssistantPropertyPage extends PropertyPage {
@@ -44,8 +47,6 @@ public class Seasar2AssistantPropertyPage extends PropertyPage {
 	private static final String VIEW_ROOT_TEXT = "View Root: ";
 
 	private static final GridData rowSpanData = createRowSpanGridData();
-
-	private ProjectPreferences preferences;
 
 	private Button useSeasar2Assistant;
 	private Button viewRootButton;
@@ -184,7 +185,7 @@ public class Seasar2AssistantPropertyPage extends PropertyPage {
 	}
 
 	private void loadStoredPreferences() {
-		preferences = new ProjectPreferences(getProject());
+		ProjectPreferences preferences = ProjectPreferences.getPreference(getProject());
 		useSeasar2Assistant.setSelection(preferences.isUseSeasar2Assistant());
 		checkScopeStrings.setSelection(preferences.isCheckScopeStrings());
 		generateCommonDaoMethods.setSelection(preferences.isGenerateCommonDaoMethods());
@@ -200,13 +201,29 @@ public class Seasar2AssistantPropertyPage extends PropertyPage {
 		viewRoot.setText("src/main/webapp/view");
 	}
 
+	private void clearMarkers(ProjectPreferences prefs) {
+		try {
+			if (!prefs.isUseSeasar2Assistant() || !prefs.isCheckScopeStrings()) {
+				getProject().deleteMarkers(ScopeStringChecker.MARKER_SCOPE_STRING, true,
+						IResource.DEPTH_INFINITE);
+			}
+		} catch (CoreException e) {
+			LoggerUtil.error(e);
+		}
+	}
+
 	@Override
 	public boolean performOk() {
+		ProjectPreferences preferences = ProjectPreferences.getPreference(getProject());
 		preferences.setUseSeasar2Assistant(useSeasar2Assistant.getSelection());
 		preferences.setCheckScopeStrings(checkScopeStrings.getSelection());
 		preferences.setGenerateCommonDaoMethods(generateCommonDaoMethods.getSelection());
 		preferences.setRootPackage(rootPackage.getText());
 		preferences.setViewRoot(viewRoot.getText());
-		return preferences.flush();
+		boolean flushed = preferences.flush();
+		if (flushed) {
+			clearMarkers(preferences);
+		}
+		return flushed;
 	}
 }
