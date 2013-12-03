@@ -4,8 +4,15 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerFilter;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -14,7 +21,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.dialogs.ElementTreeSelectionDialog;
 import org.eclipse.ui.dialogs.PropertyPage;
+import org.eclipse.ui.model.BaseWorkbenchContentProvider;
+import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -38,7 +48,6 @@ public class Seasar2AssistantPropertyPage extends PropertyPage {
 	private ProjectPreferences preferences;
 
 	private Button useSeasar2Assistant;
-	private Button rootPackageButton;
 	private Button viewRootButton;
 	private Combo rootPackage;
 	private Text viewRoot;
@@ -88,8 +97,7 @@ public class Seasar2AssistantPropertyPage extends PropertyPage {
 		Label rootPackageLabel = new Label(composite, SWT.NONE);
 		rootPackageLabel.setText(ROOT_PACKAGE_TEXT);
 		rootPackage = new Combo(composite, SWT.NONE);
-		rootPackageButton = new Button(composite, SWT.PUSH);
-		rootPackageButton.setText(BROWSE_TEXT);
+		new Label(composite, SWT.NONE); // place holder
 
 		Label viewRootLabel = new Label(composite, SWT.NONE);
 		viewRootLabel.setText(VIEW_ROOT_TEXT);
@@ -97,6 +105,33 @@ public class Seasar2AssistantPropertyPage extends PropertyPage {
 		viewRoot.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		viewRootButton = new Button(composite, SWT.PUSH);
 		viewRootButton.setText(BROWSE_TEXT);
+
+		viewRootButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				ElementTreeSelectionDialog dialog = new ElementTreeSelectionDialog(getControl()
+						.getShell(), new WorkbenchLabelProvider(),
+						new BaseWorkbenchContentProvider());
+				dialog.setTitle("Select View Root");
+				dialog.setMessage("select the view root:");
+				dialog.setInput(getProject());
+				dialog.addFilter(new ViewerFilter() {
+
+					public boolean select(Viewer viewer, Object parentElement, Object element) {
+						return element instanceof IFolder && ((IFolder) element).isAccessible();
+					}
+				});
+				if (Window.OK == dialog.open()) {
+					Object[] result = dialog.getResult();
+					if (result.length > 0) {
+						IPath fullPath = ((IFolder) result[0]).getFullPath();
+						IPath relativePath = fullPath.makeRelativeTo(getProject().getFullPath());
+						viewRoot.setText(relativePath.toString());
+					}
+				}
+
+			}
+		});
 
 		loadRootPackages();
 		loadStoredPreferences();
