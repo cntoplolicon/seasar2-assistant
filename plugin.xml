@@ -37,9 +37,14 @@
             id="seasar2assist.propertyPage"
             name="Seasar2 Assistant">
          <enabledWhen>
-            <instanceof
-                  value="org.eclipse.core.resources.IProject">
-            </instanceof>
+            <or>
+               <instanceof
+                     value="org.eclipse.core.resources.IProject">
+               </instanceof>
+               <instanceof
+                     value="org.eclipse.jdt.core.IJavaProject">
+               </instanceof>
+            </or>
          </enabledWhen>
       </page>
    </extension>

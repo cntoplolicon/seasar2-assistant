@@ -53,6 +53,7 @@ public class ScopeStringChecker implements IMarkerResolutionGenerator2, IElement
 
 			@Override
 			protected boolean visit(ICompilationUnit cu) {
+			    System.out.println("visit cu");
 				try {
 					IResource resource = cu.getUnderlyingResource();
 					if (resource != null) {
