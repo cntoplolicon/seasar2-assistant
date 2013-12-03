@@ -13,20 +13,19 @@ import cntoplolicon.seasar2assist.util.LoggerUtil;
 
 public class ProjectPreferences {
 
-	private IProject project;
+	private IEclipsePreferences projectNode;
 
-	boolean useSeasar2Assistant;
-	boolean checkScopeStrings;
-	boolean generateCommonDaoMethods;
-	String rootPackage;
-	String viewRoot;
+	private boolean useSeasar2Assistant;
+	private boolean checkScopeStrings;
+	private boolean generateCommonDaoMethods;
+	private String rootPackage;
+	private String viewRoot;
 
 	public ProjectPreferences(IProject project) {
-		this.project = project;
 		IScopeContext projectScope = new ProjectScope(project);
-		IEclipsePreferences projectNode = projectScope.getNode(Seasar2AssistantPlugin.PLUGIN_ID);
+		projectNode = projectScope.getNode(Seasar2AssistantPlugin.PLUGIN_ID);
 		for (Field field : this.getClass().getDeclaredFields()) {
-			if (field.getName().equals("prject")) {
+			if (field.getName().equals("projectNode")) {
 				continue;
 			}
 			try {
@@ -47,12 +46,49 @@ public class ProjectPreferences {
 				throw new IllegalStateException(e);
 			}
 		}
+	}
 
+	public boolean isUseSeasar2Assistant() {
+		return useSeasar2Assistant;
+	}
+
+	public void setUseSeasar2Assistant(boolean useSeasar2Assistant) {
+		this.useSeasar2Assistant = useSeasar2Assistant;
+	}
+
+	public boolean isCheckScopeStrings() {
+		return checkScopeStrings;
+	}
+
+	public void setCheckScopeStrings(boolean checkScopeStrings) {
+		this.checkScopeStrings = checkScopeStrings;
+	}
+
+	public boolean isGenerateCommonDaoMethods() {
+		return generateCommonDaoMethods;
+	}
+
+	public void setGenerateCommonDaoMethods(boolean generateCommonDaoMethods) {
+		this.generateCommonDaoMethods = generateCommonDaoMethods;
+	}
+
+	public String getRootPackage() {
+		return rootPackage;
+	}
+
+	public void setRootPackage(String rootPackage) {
+		this.rootPackage = rootPackage;
+	}
+
+	public String getViewRoot() {
+		return viewRoot;
+	}
+
+	public void setViewRoot(String viewRoot) {
+		this.viewRoot = viewRoot;
 	}
 
 	public boolean flush() {
-		IScopeContext projectScope = new ProjectScope(project);
-		IEclipsePreferences projectNode = projectScope.getNode(Seasar2AssistantPlugin.PLUGIN_ID);
 		for (Field field : this.getClass().getDeclaredFields()) {
 			if (field.getName().equals("prject")) {
 				continue;

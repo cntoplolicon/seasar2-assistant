@@ -1,5 +1,9 @@
 package cntoplolicon.seasar2assist.preference;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -11,6 +15,12 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.PropertyPage;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import cntoplolicon.seasar2assist.util.LoggerUtil;
 
 public class Seasar2AssistantPropertyPage extends PropertyPage {
 
@@ -25,6 +35,8 @@ public class Seasar2AssistantPropertyPage extends PropertyPage {
 
 	private static final GridData rowSpanData = createRowSpanGridData();
 
+	private ProjectPreferences preferences;
+
 	private Button useSeasar2Assistant;
 	private Button rootPackageButton;
 	private Button viewRootButton;
@@ -32,8 +44,6 @@ public class Seasar2AssistantPropertyPage extends PropertyPage {
 	private Text viewRoot;
 	private Button checkScopeStrings;
 	private Button generateCommonDaoMethods;
-
-	ProjectPreferences preferences;
 
 	private IProject getProject() {
 		return (IProject) getElement();
@@ -88,18 +98,63 @@ public class Seasar2AssistantPropertyPage extends PropertyPage {
 		viewRootButton = new Button(composite, SWT.PUSH);
 		viewRootButton.setText(BROWSE_TEXT);
 
+		loadRootPackages();
 		loadStoredPreferences();
 
 		return composite;
 	}
 
+	private void loadRootPackages() {
+		IProject project = getProject();
+		IFile file = project.getFile("src/main/resources/convention.dicon");
+		if (!file.exists()) {
+			return;
+		}
+		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+		try {
+			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+			Document document = dBuilder.parse(file.getContents());
+			NodeList candiates = document.getElementsByTagName("initMethod");
+			for (int i = 0; i < candiates.getLength(); i++) {
+				Element element = (Element) candiates.item(i);
+				if (!"addRootPackageName".equals(element.getAttribute("name"))) {
+					continue;
+				}
+				if (element.getParentNode().getNodeType() != Node.ELEMENT_NODE) {
+					continue;
+				}
+				Element parent = (Element) element.getParentNode();
+				if (!parent.getNodeName().equals("component")
+						|| !"org.seasar.framework.convention.impl.NamingConventionImpl"
+								.equals(parent.getAttribute("class"))) {
+					continue;
+				}
+				NodeList arguments = element.getElementsByTagName("arg");
+				if (arguments.getLength() != 1) {
+					continue;
+				}
+				Element argument = (Element) arguments.item(0);
+				if (argument.getParentNode() != element) {
+					continue;
+				}
+				String content = argument.getTextContent().trim();
+				if (content.startsWith("\"") && content.endsWith("\"")) {
+					content = content.substring(1, content.length() - 1);
+				}
+				rootPackage.add(content);
+			}
+		} catch (Exception e) {
+			LoggerUtil.error(e);
+		}
+	}
+
 	private void loadStoredPreferences() {
 		preferences = new ProjectPreferences(getProject());
-		useSeasar2Assistant.setSelection(preferences.useSeasar2Assistant);
-		checkScopeStrings.setSelection(preferences.checkScopeStrings);
-		generateCommonDaoMethods.setSelection(preferences.generateCommonDaoMethods);
-		rootPackage.setText(preferences.rootPackage);
-		viewRoot.setText(preferences.viewRoot);
+		useSeasar2Assistant.setSelection(preferences.isUseSeasar2Assistant());
+		checkScopeStrings.setSelection(preferences.isCheckScopeStrings());
+		generateCommonDaoMethods.setSelection(preferences.isGenerateCommonDaoMethods());
+		rootPackage.setText(preferences.getRootPackage());
+		viewRoot.setText(preferences.getViewRoot());
 	}
 
 	@Override
@@ -112,11 +167,11 @@ public class Seasar2AssistantPropertyPage extends PropertyPage {
 
 	@Override
 	public boolean performOk() {
-		preferences.useSeasar2Assistant = useSeasar2Assistant.getSelection();
-		preferences.checkScopeStrings = checkScopeStrings.getSelection();
-		preferences.generateCommonDaoMethods = generateCommonDaoMethods.getSelection();
-		preferences.rootPackage = rootPackage.getText();
-		preferences.viewRoot = viewRoot.getText();
+		preferences.setUseSeasar2Assistant(useSeasar2Assistant.getSelection());
+		preferences.setCheckScopeStrings(checkScopeStrings.getSelection());
+		preferences.setGenerateCommonDaoMethods(generateCommonDaoMethods.getSelection());
+		preferences.setRootPackage(rootPackage.getText());
+		preferences.setViewRoot(viewRoot.getText());
 		return preferences.flush();
 	}
 }
