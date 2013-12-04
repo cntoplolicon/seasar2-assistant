@@ -55,6 +55,11 @@
             id="cntoplolicon.seasar2assist.switchToDao"
             name="SwitchToS2hibernateDao">
       </command>
+      <command
+            defaultHandler="cntoplolicon.seasar2assist.command.InputELTemplateHandler"
+            id="cntoplolicon.seasar2assist.inputELTemplate"
+            name="InputElExpressionTemplate">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
@@ -63,6 +68,12 @@
             contextId="org.eclipse.ui.textEditorScope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="Ctrl+Shift+1">
+      </key>
+      <key
+            commandId="cntoplolicon.seasar2assist.inputELTemplate"
+            contextId="org.eclipse.ui.textEditorScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="Ctrl+Shift+2">
       </key>
    </extension>
 
