@@ -48,5 +48,22 @@
          </enabledWhen>
       </page>
    </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="cntoplolicon.seasar2assist.command.SwitchToDaoHandler"
+            id="cntoplolicon.seasar2assist.switchToDao"
+            name="SwitchToS2hibernateDao">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="cntoplolicon.seasar2assist.switchToDao"
+            contextId="org.eclipse.ui.textEditorScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="Ctrl+Shift+1">
+      </key>
+   </extension>
 
 </plugin>

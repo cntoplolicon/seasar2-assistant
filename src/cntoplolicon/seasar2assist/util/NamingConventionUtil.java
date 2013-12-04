@@ -9,6 +9,8 @@ import java.util.Set;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageDeclaration;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -26,7 +28,7 @@ public class NamingConventionUtil {
 	private static final String GETTER_PREFIX = "get";
 	private static final String SETTER_PREFIX = "set";
 
-	private static String getPrimaryClassName(ICompilationUnit cu) {
+	public static String getPrimaryClassName(ICompilationUnit cu) {
 		String filename = cu.getElementName();
 		if (!filename.endsWith(JAVA_EXTENSION)) {
 			return null;
@@ -34,28 +36,75 @@ public class NamingConventionUtil {
 		return filename.substring(0, filename.length() - JAVA_EXTENSION.length());
 	}
 
-	private static boolean isPageClassCompilationUnit(ICompilationUnit cu) {
+	private static String getRootPackage(ICompilationUnit cu) {
 		try {
+			if (!cu.exists()) {
+				return null;
+			}
 			IProject project = cu.getUnderlyingResource().getProject();
 			ProjectPreferences preferences = ProjectPreferences.getPreference(project);
 			String rootPackage = preferences.getRootPackage();
-			if (rootPackage == null || rootPackage.isEmpty()) {
-				return false;
-			}
-			IPackageDeclaration[] pds = cu.getPackageDeclarations();
-			if (pds.length != 1) {
-				return false;
-			}
-			return pds[0].exists() && pds[0].getElementName().startsWith(rootPackage + ".web");
+			return rootPackage.isEmpty() ? null : rootPackage;
 		} catch (JavaModelException e) {
 			LoggerUtil.error(e);
+			return null;
+		}
+	}
+
+	public static IPackageDeclaration getPackageDeclaration(ICompilationUnit cu) {
+		try {
+			IPackageDeclaration[] pds = cu.getPackageDeclarations();
+			int i = 0, j = -1, count = 0;
+			for (; i < pds.length; i++) {
+				if (pds[i].exists()) {
+					count++;
+					j = i;
+				}
+			}
+			if (count != 1) {
+				return null;
+			}
+			return pds[j];
+		} catch (JavaModelException e) {
+			LoggerUtil.error(e);
+			return null;
+		}
+	}
+
+	private static boolean isEntityCompilationUnit(ICompilationUnit cu) {
+		String rootPackage = getRootPackage(cu);
+		if (rootPackage == null) {
 			return false;
 		}
+		IPackageDeclaration pd = getPackageDeclaration(cu);
+		if (pd == null) {
+			return false;
+		}
+		return pd.exists() && pd.getElementName().startsWith(rootPackage)
+				&& pd.getElementName().endsWith("entity");
+	}
+
+	public static boolean isEntity(IType type) {
+		ICompilationUnit cu = type.getCompilationUnit();
+		return type.exists() && isEntityCompilationUnit(cu)
+				&& getPrimaryClassName(cu).equals(type.getElementName());
+	}
+
+	private static boolean isPageClassCompilationUnit(ICompilationUnit cu) {
+		String rootPackage = getRootPackage(cu);
+		if (rootPackage == null) {
+			return false;
+		}
+		IPackageDeclaration pd = getPackageDeclaration(cu);
+		if (pd == null) {
+			return false;
+		}
+		return pd.exists() && pd.getElementName().startsWith(rootPackage + ".web");
 	}
 
 	public static boolean isPageClass(IType type) {
 		ICompilationUnit cu = type.getCompilationUnit();
-		return isPageClassCompilationUnit(cu)
+		return type.exists() && isPageClassCompilationUnit(cu)
 				&& getPrimaryClassName(cu).equals(type.getElementName())
 				&& type.getElementName().endsWith(PAGE_CLASS_SUFFIX);
 	}
@@ -172,5 +221,42 @@ public class NamingConventionUtil {
 		}
 
 		return properties;
+	}
+
+	public static IPackageFragment getDaoPackageFromEntity(IType entity) {
+		if (!entity.exists()) {
+			return null;
+		}
+		IPackageFragment entityPf = entity.getPackageFragment();
+		try {
+			if (entityPf.getKind() != IPackageFragmentRoot.K_SOURCE) {
+				return null;
+			}
+		} catch (JavaModelException e) {
+			LoggerUtil.error(e);
+			return null;
+		}
+		IPackageFragmentRoot root = JavaModelUtil.getPackageFragmentRoot(entityPf);
+
+		String entityPackage = entityPf == null ? "" : entityPf.getElementName();
+		String daoPackage = null;
+		if (entityPackage.isEmpty()) {
+			daoPackage = "dao";
+		} else if (!entityPackage.endsWith("entity")) {
+			daoPackage = entityPackage + ".dao";
+		} else {
+			daoPackage = entityPackage.substring(0, entityPackage.lastIndexOf("entity")) + "dao";
+		}
+		IPackageFragment daoPf = root.getPackageFragment(daoPackage);
+		return daoPf;
+	}
+
+	public static ICompilationUnit getDaoFromEntity(IType entity) {
+		IPackageFragment pf = getDaoPackageFromEntity(entity);
+		if (pf == null) {
+			return null;
+		}
+		ICompilationUnit cu = pf.getCompilationUnit(entity.getElementName() + "Dao.java");
+		return cu.exists() ? cu : null;
 	}
 }
