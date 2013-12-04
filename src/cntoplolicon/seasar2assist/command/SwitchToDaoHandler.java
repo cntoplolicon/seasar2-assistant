@@ -19,6 +19,8 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.ide.ResourceUtil;
 
+import cntoplolicon.seasar2assist.job.GenerateCommonDaoStuffJob;
+import cntoplolicon.seasar2assist.preference.ProjectPreferences;
 import cntoplolicon.seasar2assist.util.JavaModelUtil;
 import cntoplolicon.seasar2assist.util.LoggerUtil;
 import cntoplolicon.seasar2assist.util.NamingConventionUtil;
@@ -74,6 +76,7 @@ public class SwitchToDaoHandler extends AbstractHandler {
 		}
 
 		page.setEnclosingType(null, false);
+		page.setTypeName(entityType.getElementName() + "Dao", true);
 	}
 
 	@Override
@@ -82,6 +85,13 @@ public class SwitchToDaoHandler extends AbstractHandler {
 		if (entityType == null) {
 			return null;
 		}
+
+		ProjectPreferences prefs = ProjectPreferences.getPreference(entityType.getJavaProject()
+				.getProject());
+		if (!prefs.isUseSeasar2Assistant()) {
+			return null;
+		}
+
 		ICompilationUnit daoCu = NamingConventionUtil.getDaoFromEntity(entityType);
 		if (daoCu != null) {
 			try {
@@ -104,9 +114,10 @@ public class SwitchToDaoHandler extends AbstractHandler {
 		if (action.getCreatedElement() == null || !(action.getCreatedElement() instanceof IType)) {
 			return null;
 		}
-		IType type = (IType) action.getCreatedElement();
-		System.out.println(type);
+		IType daoType = (IType) action.getCreatedElement();
+		new GenerateCommonDaoStuffJob(daoType, entityType).schedule();
 
 		return null;
 	}
+
 }

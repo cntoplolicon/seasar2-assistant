@@ -34,7 +34,6 @@ public class ProjectPreferences {
 
 	public static ProjectPreferences getPreference(IProject project) {
 		if (!preferenceMap.containsKey(project)) {
-			System.err.println("create new preferences");
 			preferenceMap.put(project, new ProjectPreferences(project));
 		}
 		return preferenceMap.get(project);

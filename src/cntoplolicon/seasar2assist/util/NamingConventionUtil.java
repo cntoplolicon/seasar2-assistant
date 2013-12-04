@@ -37,18 +37,13 @@ public class NamingConventionUtil {
 	}
 
 	private static String getRootPackage(ICompilationUnit cu) {
-		try {
-			if (!cu.exists()) {
-				return null;
-			}
-			IProject project = cu.getUnderlyingResource().getProject();
-			ProjectPreferences preferences = ProjectPreferences.getPreference(project);
-			String rootPackage = preferences.getRootPackage();
-			return rootPackage.isEmpty() ? null : rootPackage;
-		} catch (JavaModelException e) {
-			LoggerUtil.error(e);
+		if (!cu.exists()) {
 			return null;
 		}
+		IProject project = cu.getJavaProject().getProject();
+		ProjectPreferences preferences = ProjectPreferences.getPreference(project);
+		String rootPackage = preferences.getRootPackage();
+		return rootPackage.isEmpty() ? null : rootPackage;
 	}
 
 	public static IPackageDeclaration getPackageDeclaration(ICompilationUnit cu) {
