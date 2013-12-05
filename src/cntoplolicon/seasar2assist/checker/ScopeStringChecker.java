@@ -15,6 +15,7 @@ import org.eclipse.text.edits.DeleteEdit;
 import org.eclipse.ui.IMarkerResolution;
 import org.eclipse.ui.IMarkerResolutionGenerator2;
 
+import cntoplolicon.seasar2assist.constants.ScopeStringConstants;
 import cntoplolicon.seasar2assist.job.CheckScopeStringJob;
 import cntoplolicon.seasar2assist.preference.ProjectPreferences;
 import cntoplolicon.seasar2assist.util.LoggerUtil;
@@ -22,18 +23,6 @@ import cntoplolicon.seasar2assist.util.NamingConventionUtil;
 import cntoplolicon.seasar2assist.visitor.JavaElementDeltaVisitor;
 
 public class ScopeStringChecker implements IMarkerResolutionGenerator2, IElementChangedListener {
-
-	public static final String PAGE_SCOPE_FIELD = "PAGE_SCOPE";
-	public static final String REDIRECT_SCOPE_FIELD = "REDIRECT_SCOPE";
-	public static final String SUBAPPLICATION_SCOPE_FIELD = "SUBAPPLICATION_SCOPE";
-	public static final String MARKER_SCOPE_STRING = "cntoplolicon.seasar2assist.marker.scopestring";
-
-	public static final String MARKER_ATTR_CLEAR_RANGE_START = "cntoplolicon.seasar2assist.marker.attr.clearstart";
-	public static final String MARKER_ATTR_CLEAR_RANGE_END = "cntoplolicon.seasar2assist.marker.attr.clearend";
-	public static final String MARKER_ATTR_TYPE = "cntoplolicon.seasar2assist.marker.attr.type";
-
-	public static final int MARKER_TYPE_DUPLICATE = 0;
-	public static final int MARKER_TYPE_MISSING = 1;
 
 	@Override
 	public void elementChanged(ElementChangedEvent event) {
@@ -82,8 +71,9 @@ public class ScopeStringChecker implements IMarkerResolutionGenerator2, IElement
 
 			private boolean visit(IType type) {
 				if (type.exists() && NamingConventionUtil.isPageClass(type)) {
-					String fieldNames[] = { PAGE_SCOPE_FIELD, PAGE_SCOPE_FIELD,
-							SUBAPPLICATION_SCOPE_FIELD };
+					String fieldNames[] = { ScopeStringConstants.PAGE_SCOPE_FIELD,
+							ScopeStringConstants.PAGE_SCOPE_FIELD,
+							ScopeStringConstants.SUBAPPLICATION_SCOPE_FIELD };
 					boolean hasScopeString = false;
 					for (String fieldName : fieldNames) {
 						IField field = type.getField(fieldName);
@@ -111,8 +101,10 @@ public class ScopeStringChecker implements IMarkerResolutionGenerator2, IElement
 				return;
 			}
 			try {
-				Integer start = (Integer) marker.getAttribute(MARKER_ATTR_CLEAR_RANGE_START);
-				Integer end = (Integer) marker.getAttribute(MARKER_ATTR_CLEAR_RANGE_END);
+				Integer start = (Integer) marker
+						.getAttribute(ScopeStringConstants.MARKER_ATTR_CLEAR_RANGE_START);
+				Integer end = (Integer) marker
+						.getAttribute(ScopeStringConstants.MARKER_ATTR_CLEAR_RANGE_END);
 				ICompilationUnit workingCopy = (ICompilationUnit) JavaCore.create(marker
 						.getResource());
 				DeleteEdit deleteEdit = new DeleteEdit(start, end - start);
@@ -128,8 +120,9 @@ public class ScopeStringChecker implements IMarkerResolutionGenerator2, IElement
 	@Override
 	public boolean hasResolutions(IMarker marker) {
 		try {
-			return marker.exists() && marker.getAttribute(MARKER_ATTR_CLEAR_RANGE_START) != null
-					&& marker.getAttribute(MARKER_ATTR_CLEAR_RANGE_END) != null;
+			return marker.exists()
+					&& marker.getAttribute(ScopeStringConstants.MARKER_ATTR_CLEAR_RANGE_START) != null
+					&& marker.getAttribute(ScopeStringConstants.MARKER_ATTR_CLEAR_RANGE_END) != null;
 		} catch (CoreException e) {
 			e.printStackTrace();
 			return false;

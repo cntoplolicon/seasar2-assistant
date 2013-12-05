@@ -41,8 +41,9 @@ public abstract class JavaElementDeltaVisitor {
 			return visit((ICompilationUnit) element);
 		case IJavaElement.CLASS_FILE:
 			return visit((IClassFile) element);
+		default:
+			return true;
 		}
-		return true;
 	}
 
 	protected boolean visit(IJavaModel model) {

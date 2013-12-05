@@ -30,7 +30,7 @@ import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
-import cntoplolicon.seasar2assist.checker.ScopeStringChecker;
+import cntoplolicon.seasar2assist.constants.ScopeStringConstants;
 import cntoplolicon.seasar2assist.util.LoggerUtil;
 import cntoplolicon.seasar2assist.util.NamingConventionUtil;
 
@@ -73,9 +73,9 @@ public class CheckScopeStringJob extends Job {
 		attributes.put(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 
 		if (clearRangeEnd != 0) {
-			attributes.put(ScopeStringChecker.MARKER_ATTR_CLEAR_RANGE_START, startPosition
+			attributes.put(ScopeStringConstants.MARKER_ATTR_CLEAR_RANGE_START, startPosition
 					+ clearRangeStart);
-			attributes.put(ScopeStringChecker.MARKER_ATTR_CLEAR_RANGE_END, startPosition
+			attributes.put(ScopeStringConstants.MARKER_ATTR_CLEAR_RANGE_END, startPosition
 					+ clearRangeEnd);
 		}
 		return attributes;
@@ -90,7 +90,7 @@ public class CheckScopeStringJob extends Job {
 
 	private void createScopeStringMarkerWithAttrs(IResource resource, Map<String, Object> attributes) {
 		try {
-			IMarker marker = resource.createMarker(ScopeStringChecker.MARKER_SCOPE_STRING);
+			IMarker marker = resource.createMarker(ScopeStringConstants.MARKER_SCOPE_STRING);
 			marker.setAttributes(attributes);
 		} catch (CoreException e) {
 			LoggerUtil.warn(e);
@@ -103,10 +103,10 @@ public class CheckScopeStringJob extends Job {
 
 	private void markDuplicateProperty(IResource resource, String property, int lineNumber) {
 		Map<String, Object> attributes = createLineMarkerAttrs(lineNumber);
-		attributes.put(ScopeStringChecker.MARKER_ATTR_TYPE,
-				ScopeStringChecker.MARKER_TYPE_DUPLICATE);
-		attributes.put(ScopeStringChecker.MARKER_ATTR_TYPE,
-				ScopeStringChecker.MARKER_TYPE_DUPLICATE);
+		attributes.put(ScopeStringConstants.MARKER_ATTR_TYPE,
+				ScopeStringConstants.MARKER_TYPE_DUPLICATE);
+		attributes.put(ScopeStringConstants.MARKER_ATTR_TYPE,
+				ScopeStringConstants.MARKER_TYPE_DUPLICATE);
 		attributes.put(IMarker.MESSAGE, getDuplicateErrorMessage(property));
 		createScopeStringMarkerWithAttrs(resource, attributes);
 	}
@@ -115,8 +115,8 @@ public class CheckScopeStringJob extends Job {
 			int position, boolean singleProperty) {
 		Map<String, Object> attributes = createLiteralMarkerAttrs(literal, property, position,
 				singleProperty);
-		attributes.put(ScopeStringChecker.MARKER_ATTR_TYPE,
-				ScopeStringChecker.MARKER_TYPE_DUPLICATE);
+		attributes.put(ScopeStringConstants.MARKER_ATTR_TYPE,
+				ScopeStringConstants.MARKER_TYPE_DUPLICATE);
 		attributes.put(IMarker.MESSAGE, getDuplicateErrorMessage(property));
 		createScopeStringMarkerWithAttrs(resource, attributes);
 	}
@@ -131,7 +131,8 @@ public class CheckScopeStringJob extends Job {
 		Map<String, Object> attributes = createLiteralMarkerAttrs(literal, property, position,
 				singleProperty);
 		attributes.put(IMarker.MESSAGE, getMissingErrorMessage(property));
-		attributes.put(ScopeStringChecker.MARKER_ATTR_TYPE, ScopeStringChecker.MARKER_TYPE_MISSING);
+		attributes.put(ScopeStringConstants.MARKER_ATTR_TYPE,
+				ScopeStringConstants.MARKER_TYPE_MISSING);
 		createScopeStringMarkerWithAttrs(resource, attributes);
 	}
 
@@ -229,7 +230,7 @@ public class CheckScopeStringJob extends Job {
 			return Status.CANCEL_STATUS;
 		}
 		try {
-			cu.getResource().deleteMarkers(ScopeStringChecker.MARKER_SCOPE_STRING, true,
+			cu.getResource().deleteMarkers(ScopeStringConstants.MARKER_SCOPE_STRING, true,
 					IResource.DEPTH_ZERO);
 		} catch (CoreException e) {
 			LoggerUtil.warn(e);
@@ -257,16 +258,16 @@ public class CheckScopeStringJob extends Job {
 			@Override
 			public boolean visit(FieldDeclaration fd) {
 				ITypeBinding tb = fd.getType().resolveBinding();
-				if (tb == null || !tb.getQualifiedName().equals("java.lang.String")) {
+				if (tb == null || !tb.getQualifiedName().equals(String.class.getName())) {
 					return false;
 				}
 				List<VariableDeclarationFragment> vdfs = new ArrayList<VariableDeclarationFragment>();
 				for (Object object : fd.fragments()) {
 					VariableDeclarationFragment vdf = (VariableDeclarationFragment) object;
 					String identifier = vdf.getName().getIdentifier();
-					if (identifier.equals(ScopeStringChecker.PAGE_SCOPE_FIELD)
-							|| identifier.equals(ScopeStringChecker.REDIRECT_SCOPE_FIELD)
-							|| identifier.equals(ScopeStringChecker.SUBAPPLICATION_SCOPE_FIELD)) {
+					if (identifier.equals(ScopeStringConstants.PAGE_SCOPE_FIELD)
+							|| identifier.equals(ScopeStringConstants.REDIRECT_SCOPE_FIELD)
+							|| identifier.equals(ScopeStringConstants.SUBAPPLICATION_SCOPE_FIELD)) {
 						vdfs.add(vdf);
 					}
 					try {

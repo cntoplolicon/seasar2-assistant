@@ -70,21 +70,6 @@ public class GenerateCommonDaoStuffJob extends Job {
 		generateCommonVoidMethod(daoWorkingCopy, "delete");
 	}
 
-	private void createGetAllMethod(ICompilationUnit cu, IType daoWorkingCopy)
-			throws JavaModelException {
-		cu.createImport("java.util.List", null, null);
-
-		StringBuilder content = new StringBuilder();
-		content.append("public ");
-		if (isGenericAvalable()) {
-			content.append("List<").append(entityType.getElementName()).append(">");
-		} else {
-			content.append("List");
-		}
-		content.append(" getAll();");
-		daoWorkingCopy.createMethod(content.toString(), null, true, null);
-	}
-
 	@Override
 	protected IStatus run(IProgressMonitor monitor) {
 		ProjectPreferences prefs = ProjectPreferences.getPreference(daoType.getJavaProject()
@@ -103,7 +88,6 @@ public class GenerateCommonDaoStuffJob extends Job {
 				createUpdateMethod(daoWorkingCopy);
 				createSaveOrUpdateMethod(daoWorkingCopy);
 				createDeleteMethod(daoWorkingCopy);
-				createGetAllMethod(workingCopy, daoWorkingCopy);
 			}
 			workingCopy.commitWorkingCopy(false, null);
 			workingCopy.discardWorkingCopy();

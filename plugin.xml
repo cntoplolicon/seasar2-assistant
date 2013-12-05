@@ -60,12 +60,17 @@
             id="cntoplolicon.seasar2assist.inputELTemplate"
             name="InputElExpressionTemplate">
       </command>
+      <command
+            defaultHandler="cntoplolicon.seasar2assist.command.GenerateDaoArgHqlHandler"
+            id="cntoplolicon.seasar2assist.generateDaoArgHql"
+            name="GenerateDaoArgsHql">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
       <key
             commandId="cntoplolicon.seasar2assist.switchToDao"
-            contextId="org.eclipse.ui.textEditorScope"
+            contextId="org.eclipse.jdt.ui.javaEditorScope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="Ctrl+Shift+1">
       </key>
@@ -74,6 +79,12 @@
             contextId="org.eclipse.ui.textEditorScope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="Ctrl+Shift+2">
+      </key>
+      <key
+            commandId="cntoplolicon.seasar2assist.generateDaoArgHql"
+            contextId="org.eclipse.jdt.ui.javaEditorScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="Ctrl+Shift+3">
       </key>
    </extension>
 

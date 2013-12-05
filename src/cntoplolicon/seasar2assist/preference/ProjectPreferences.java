@@ -14,7 +14,7 @@ import org.osgi.service.prefs.BackingStoreException;
 import cntoplolicon.seasar2assist.Seasar2AssistantPlugin;
 import cntoplolicon.seasar2assist.util.LoggerUtil;
 
-public class ProjectPreferences {
+public final class ProjectPreferences {
 
 	private IEclipsePreferences projectNode;
 

@@ -9,15 +9,12 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.ui.actions.OpenNewInterfaceWizardAction;
 import org.eclipse.jdt.ui.wizards.NewInterfaceWizardPage;
-import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
-import org.eclipse.ui.ide.ResourceUtil;
 
 import cntoplolicon.seasar2assist.job.GenerateCommonDaoStuffJob;
 import cntoplolicon.seasar2assist.preference.ProjectPreferences;
@@ -28,21 +25,10 @@ import cntoplolicon.seasar2assist.util.NamingConventionUtil;
 public class SwitchToDaoHandler extends AbstractHandler {
 
 	private IType getCurrentEntity() {
-		IEditorPart activeEditor = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-				.getActivePage().getActiveEditor();
-		if (activeEditor == null) {
+		ICompilationUnit cu = JavaModelUtil.getCurrentCompilationUnit();
+		if (cu == null) {
 			return null;
 		}
-
-		IFile file = (IFile) ResourceUtil.getFile(activeEditor.getEditorInput());
-		if (file == null) {
-			return null;
-		}
-		IJavaElement element = JavaCore.create(file);
-		if (!(element instanceof ICompilationUnit)) {
-			return null;
-		}
-		ICompilationUnit cu = (ICompilationUnit) element;
 		IType entityType = null;
 		try {
 			for (IType candiate : cu.getAllTypes()) {
@@ -64,7 +50,8 @@ public class SwitchToDaoHandler extends AbstractHandler {
 	private void initNewInterfacePage(NewInterfaceWizardPage page, IType entityType) {
 		IPackageFragment entityPf = entityType.getPackageFragment();
 
-		IPackageFragmentRoot root = JavaModelUtil.getPackageFragmentRoot(entityPf);
+		IPackageFragmentRoot root = (IPackageFragmentRoot) entityPf
+				.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
 		if (root == null) {
 			return;
 		}
