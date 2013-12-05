@@ -50,20 +50,27 @@
    </extension>
    <extension
          point="org.eclipse.ui.commands">
+      <category
+            id="cntoplolicon.seasar2assist.command"
+            name="Seasar2 Assistant">
+      </category>
       <command
+            categoryId="cntoplolicon.seasar2assist.command"
             defaultHandler="cntoplolicon.seasar2assist.command.SwitchToDaoHandler"
             id="cntoplolicon.seasar2assist.switchToDao"
-            name="SwitchToS2hibernateDao">
+            name="Switch To S2hibernate Dao">
       </command>
       <command
+            categoryId="cntoplolicon.seasar2assist.command"
             defaultHandler="cntoplolicon.seasar2assist.command.InputELTemplateHandler"
             id="cntoplolicon.seasar2assist.inputELTemplate"
-            name="InputElExpressionTemplate">
+            name="Input EL Expresson for Page Class">
       </command>
       <command
+            categoryId="cntoplolicon.seasar2assist.command"
             defaultHandler="cntoplolicon.seasar2assist.command.GenerateDaoArgHqlHandler"
             id="cntoplolicon.seasar2assist.generateDaoArgHql"
-            name="GenerateDaoArgsHql">
+            name="Generate ARGS or HQL for S2hibernate Dao">
       </command>
    </extension>
    <extension
