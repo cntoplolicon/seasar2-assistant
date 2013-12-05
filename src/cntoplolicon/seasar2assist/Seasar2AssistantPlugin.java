@@ -9,7 +9,7 @@ import org.osgi.framework.BundleContext;
 public class Seasar2AssistantPlugin extends AbstractUIPlugin {
 
 	// The plug-in ID
-	public static final String PLUGIN_ID = "cntoplolicon.teedaassist"; //$NON-NLS-1$
+	public static final String PLUGIN_ID = "cntoplolicon.seasar2assistant"; //$NON-NLS-1$
 
 	// The shared instance
 	private static Seasar2AssistantPlugin plugin;
