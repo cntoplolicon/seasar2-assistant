@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: cntoplolicon.teedaassist
-Bundle-SymbolicName: cntoplolicon.teedaassist;singleton:=true
+Bundle-Name: cntoplolicon.seasar2assist
+Bundle-SymbolicName: cntoplolicon.seasar2assist;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: cntoplolicon.seasar2assist.Seasar2AssistantPlugin
 Require-Bundle: org.eclipse.ui,
