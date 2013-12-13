@@ -34,6 +34,7 @@ public final class NamingConventionUtil {
 	private static final String DAO_CLASS_SUFFIX = "Dao";
 	private static final String JAVA_EXTENSION = ".java";
 	private static final String GETTER_PREFIX = "get";
+	private static final String BOOLEAN_GETTER_PREFIX = "is";
 	private static final String SETTER_PREFIX = "set";
 
 	private NamingConventionUtil() {
@@ -153,25 +154,35 @@ public final class NamingConventionUtil {
 				&& (modifer & Modifier.PUBLIC) != 0;
 	}
 
-	public static boolean isGetter(String methodName) {
-		return methodName.startsWith(GETTER_PREFIX) && methodName.length() > GETTER_PREFIX.length()
-				&& Character.isUpperCase(methodName.charAt(GETTER_PREFIX.length()));
+	private static boolean isGetter(String methodName) {
+		return (methodName.startsWith(GETTER_PREFIX)
+				&& methodName.length() > GETTER_PREFIX.length() && Character.isUpperCase(methodName
+				.charAt(GETTER_PREFIX.length())))
+				|| (methodName.startsWith(BOOLEAN_GETTER_PREFIX)
+						&& methodName.length() > BOOLEAN_GETTER_PREFIX.length() && Character
+							.isUpperCase(methodName.charAt(BOOLEAN_GETTER_PREFIX.length())));
+
 	}
 
-	public static boolean isSetter(String methodName) {
+	private static boolean isSetter(String methodName) {
 		return methodName.startsWith(SETTER_PREFIX) && methodName.length() > SETTER_PREFIX.length()
 				&& Character.isUpperCase(methodName.charAt(GETTER_PREFIX.length()));
 	}
 
-	public static String getPropertyNameFromGetter(String getter) {
+	private static String getPropertyNameFromGetter(String getter) {
 		if (!isGetter(getter)) {
 			return null;
 		}
-		return Character.toLowerCase(getter.charAt(GETTER_PREFIX.length()))
-				+ getter.substring(1 + GETTER_PREFIX.length());
+		if (getter.startsWith(GETTER_PREFIX)) {
+			return Character.toLowerCase(getter.charAt(GETTER_PREFIX.length()))
+					+ getter.substring(1 + GETTER_PREFIX.length());
+		} else {
+			return Character.toLowerCase(getter.charAt(BOOLEAN_GETTER_PREFIX.length()))
+					+ getter.substring(1 + BOOLEAN_GETTER_PREFIX.length());
+		}
 	}
 
-	public static String getPropertyNameFromSetter(String setter) {
+	private static String getPropertyNameFromSetter(String setter) {
 		if (!isSetter(setter)) {
 			return null;
 		}
@@ -179,13 +190,19 @@ public final class NamingConventionUtil {
 				+ setter.substring(1 + GETTER_PREFIX.length());
 	}
 
-	public static String getGetterNameFromProperty(String property) {
+	private static String getNormalGetterNameFromProperty(String property) {
 		return new StringBuilder().append(GETTER_PREFIX)
 				.append(Character.toUpperCase(property.charAt(0))).append(property.substring(1))
 				.toString();
 	}
 
-	public static String getSetterNameFromProperty(String property) {
+	private static String getBooleanGetterNameFromProperty(String property) {
+		return new StringBuilder().append(BOOLEAN_GETTER_PREFIX)
+				.append(Character.toUpperCase(property.charAt(0))).append(property.substring(1))
+				.toString();
+	}
+
+	private static String getSetterNameFromProperty(String property) {
 		return new StringBuilder().append(SETTER_PREFIX)
 				.append(Character.toUpperCase(property.charAt(0))).append(property.substring(1))
 				.toString();
@@ -196,7 +213,14 @@ public final class NamingConventionUtil {
 				|| !isValidPropertyModifier(setter.getModifiers())) {
 			return false;
 		}
-		if (!setter.getReturnType().getQualifiedName().equals("void")) {
+		if (getter.getName().startsWith(BOOLEAN_GETTER_PREFIX)) {
+			ITypeBinding binding = getter.getReturnType();
+			if (!binding.getQualifiedName().equals(boolean.class.getName())
+					&& !binding.getQualifiedName().equals(Boolean.class.getName())) {
+				return false;
+			}
+		}
+		if (!setter.getReturnType().getQualifiedName().equals(void.class.getName())) {
 			return false;
 		}
 		ITypeBinding[] setterParams = setter.getParameterTypes();
@@ -206,7 +230,10 @@ public final class NamingConventionUtil {
 		if (getter.getParameterTypes().length != 0) {
 			return false;
 		}
-		if (!getter.getReturnType().getQualifiedName().equals(setterParams[0].getQualifiedName())) {
+		String getterReturnType = getter.getReturnType().getBinaryName();
+		String setterParamType = setter.getParameterTypes()[0].getBinaryName();
+		if (getterReturnType == null || setterParamType == null
+				|| !getterReturnType.equals(setterParamType)) {
 			return false;
 		}
 		return true;
@@ -216,34 +243,42 @@ public final class NamingConventionUtil {
 		Set<String> properties = new HashSet<String>();
 		ITypeBinding binding = td.resolveBinding();
 
-		IVariableBinding[] vbs = binding.getDeclaredFields();
-		for (IVariableBinding vb : vbs) {
-			if (isValidPropertyModifier(vb.getModifiers())) {
-				properties.add(vb.getName());
-			}
-		}
+		while (binding != null) {
 
-		IMethodBinding[] mbs = binding.getDeclaredMethods();
-		Map<String, IMethodBinding> nameToMethod = new HashMap<String, IMethodBinding>();
-		for (IMethodBinding mb : mbs) {
-			nameToMethod.put(mb.getName(), mb);
-		}
+			IVariableBinding[] vbs = binding.getDeclaredFields();
+			for (IVariableBinding vb : vbs) {
+				if (isValidPropertyModifier(vb.getModifiers())) {
+					properties.add(vb.getName());
+				}
+			}
 
-		for (IMethodBinding mb : mbs) {
-			IMethodBinding getter = null, setter = null;
-			String property = null;
-			if (isGetter(mb.getName())) {
-				getter = mb;
-				property = getPropertyNameFromGetter(mb.getName());
-				setter = nameToMethod.remove(getSetterNameFromProperty(property));
-			} else if (isSetter(mb.getName())) {
-				setter = mb;
-				property = getPropertyNameFromSetter(mb.getName());
-				getter = nameToMethod.remove(getGetterNameFromProperty(property));
+			IMethodBinding[] mbs = binding.getDeclaredMethods();
+			Map<String, IMethodBinding> nameToMethod = new HashMap<String, IMethodBinding>();
+			for (IMethodBinding mb : mbs) {
+				nameToMethod.put(mb.getName(), mb);
 			}
-			if (getter != null && setter != null && isValidGetterSetter(getter, setter)) {
-				properties.add(property);
+
+			for (IMethodBinding mb : mbs) {
+				IMethodBinding getter = null, setter = null;
+				String property = null;
+				if (isGetter(mb.getName())) {
+					getter = mb;
+					property = getPropertyNameFromGetter(mb.getName());
+					setter = nameToMethod.remove(getSetterNameFromProperty(property));
+				} else if (isSetter(mb.getName())) {
+					setter = mb;
+					property = getPropertyNameFromSetter(mb.getName());
+					getter = nameToMethod.remove(getNormalGetterNameFromProperty(property));
+					if (getter == null) {
+						getter = nameToMethod.remove(getBooleanGetterNameFromProperty(property));
+					}
+				}
+				if (getter != null && setter != null && isValidGetterSetter(getter, setter)) {
+					properties.add(property);
+				}
 			}
+
+			binding = binding.getSuperclass();
 		}
 
 		return properties;

@@ -33,6 +33,6 @@ For example, for *{viewRoot}/sub1/sub2/test.html*, `sub1_sub2_testPage.` will be
 
 ### Generate ARGS and HQL for S2Hibernate Dao ###
 
-Place the cursor at the method of S2Hibernate Dao and press Ctrl+Shift+3 to generate a **MethodName_ARGS** string.
-Press Ctrl+Shift+3 again to generate a stub of **MethodName_HQL**.
+Place the cursor at the method of S2Hibernate Dao and press Ctrl+Shift+3 to generate a `MethodName_ARGS` string.
+Press Ctrl+Shift+3 again to generate a stub of `MethodName_HQL`.
 
