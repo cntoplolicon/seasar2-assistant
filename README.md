@@ -17,7 +17,7 @@ ones. See below about other options.
 ### Checking Scope Strings ###
 
 Turn on **check scope declerations of properties in page class** on property page. Seasar2 Assistant will check the
-existence of properties declared in PAGE_SCOPE, REDIRECT_SCOPE and SUBAPPLICATION_SCOPE strings when editing java
+existence of properties declared in `PAGE_SCOPE`, `REDIRECT_SCOPE` and `SUBAPPLICATION_SCOPE` strings when editing java
 source.
 
 ### Generate S2Hibernate Dao ###
