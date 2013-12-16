@@ -31,6 +31,7 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 import cntoplolicon.seasar2assist.constants.ScopeStringConstants;
+import cntoplolicon.seasar2assist.preference.ProjectPreferences;
 import cntoplolicon.seasar2assist.util.LoggerUtil;
 import cntoplolicon.seasar2assist.util.NamingConventionUtil;
 
@@ -38,11 +39,13 @@ public class CheckScopeStringJob extends Job {
 
 	private static final String DELIMITER = " *, *";
 
+	private ProjectPreferences prefs;
 	private IType type;
 
-	public CheckScopeStringJob(IType type) {
+	public CheckScopeStringJob(IType type, ProjectPreferences prefs) {
 		super("checking scope strings");
 		this.type = type;
+		this.prefs = prefs;
 	}
 
 	private Map<String, Object> createLiteralMarkerAttrs(StringLiteral literal, String property,
@@ -70,7 +73,7 @@ public class CheckScopeStringJob extends Job {
 		Map<String, Object> attributes = new HashMap<String, Object>();
 		attributes.put(IMarker.CHAR_START, startPosition + position);
 		attributes.put(IMarker.CHAR_END, startPosition + position + property.length());
-		attributes.put(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+		attributes.put(IMarker.SEVERITY, prefs.getScopeStringErrorSeverity());
 
 		if (clearRangeEnd != 0) {
 			attributes.put(ScopeStringConstants.MARKER_ATTR_CLEAR_RANGE_START, startPosition
@@ -83,7 +86,7 @@ public class CheckScopeStringJob extends Job {
 
 	private Map<String, Object> createLineMarkerAttrs(int lineNumber) {
 		Map<String, Object> attributes = new HashMap<String, Object>();
-		attributes.put(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+		attributes.put(IMarker.SEVERITY, prefs.getScopeStringErrorSeverity());
 		attributes.put(IMarker.LINE_NUMBER, lineNumber);
 		return attributes;
 	}

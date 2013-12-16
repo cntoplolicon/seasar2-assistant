@@ -28,6 +28,8 @@ public class ScopeStringChecker implements IMarkerResolutionGenerator2, IElement
 	public void elementChanged(ElementChangedEvent event) {
 
 		JavaElementDeltaVisitor.accept(event.getDelta(), new JavaElementDeltaVisitor() {
+			
+			private ProjectPreferences prefs;
 
 			@Override
 			protected boolean preVisit(IJavaElementDelta delta) {
@@ -45,7 +47,7 @@ public class ScopeStringChecker implements IMarkerResolutionGenerator2, IElement
 				try {
 					IResource resource = cu.getUnderlyingResource();
 					if (resource != null) {
-						ProjectPreferences prefs = ProjectPreferences.getPreference(resource
+						prefs = ProjectPreferences.getPreference(resource
 								.getProject());
 						if (!prefs.isUseSeasar2Assistant() || !prefs.isCheckScopeStrings()) {
 							return false;
@@ -80,7 +82,7 @@ public class ScopeStringChecker implements IMarkerResolutionGenerator2, IElement
 						hasScopeString |= field != null && field.exists();
 					}
 					if (hasScopeString) {
-						new CheckScopeStringJob(type).schedule();
+						new CheckScopeStringJob(type, prefs).schedule();
 					}
 				}
 				return false;

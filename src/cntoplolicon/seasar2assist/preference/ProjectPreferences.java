@@ -23,6 +23,8 @@ public final class ProjectPreferences {
 	@ProjectProperty
 	private boolean checkScopeStrings;
 	@ProjectProperty
+	private int scopeStringErrorSeverity;
+	@ProjectProperty
 	private boolean generateCommonDaoMethods;
 	@ProjectProperty
 	private String rootPackage;
@@ -104,6 +106,14 @@ public final class ProjectPreferences {
 
 	public void setViewRoot(String viewRoot) {
 		this.viewRoot = viewRoot;
+	}
+
+	public int getScopeStringErrorSeverity() {
+		return scopeStringErrorSeverity;
+	}
+
+	public void setScopeStringErrorSeverity(int scopeStringErrorSeverity) {
+		this.scopeStringErrorSeverity = scopeStringErrorSeverity;
 	}
 
 	public boolean flush() {

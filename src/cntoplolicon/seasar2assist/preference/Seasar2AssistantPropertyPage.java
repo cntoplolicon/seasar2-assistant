@@ -5,6 +5,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -50,11 +51,14 @@ public class Seasar2AssistantPropertyPage extends PropertyPage {
 
 	private static final GridData ROW_SPAN_DATA = createRowSpanGridData();
 
+	private static final String[] SEVERITY_TEXT = { "info", "warning", "error" };
+
 	private Button useSeasar2Assistant;
 	private Button viewRootButton;
 	private Combo rootPackage;
 	private Text viewRoot;
 	private Button checkScopeStrings;
+	private Combo scopeStringErrorSeverity;
 	private Button generateCommonDaoMethods;
 
 	private IProject getProject() {
@@ -67,10 +71,14 @@ public class Seasar2AssistantPropertyPage extends PropertyPage {
 		throw new IllegalStateException("unkown project");
 	}
 
-	private static GridData createRowSpanGridData() {
+	private static GridData createHorizontalSpanData(int hs) {
 		GridData data = new GridData();
-		data.horizontalSpan = NUM_COLUMNS;
+		data.horizontalSpan = hs;
 		return data;
+	}
+
+	private static GridData createRowSpanGridData() {
+		return createHorizontalSpanData(NUM_COLUMNS);
 	}
 
 	private void createEmptyRow(Composite composite) {
@@ -126,13 +134,16 @@ public class Seasar2AssistantPropertyPage extends PropertyPage {
 					if (viewRootValue == null || viewRootValue.isEmpty()) {
 						viewRoot.setText("src/main/webapp/view");
 					}
+					scopeStringErrorSeverity.select(IMarker.SEVERITY_WARNING);
 				}
 			}
 		});
 
 		checkScopeStrings = new Button(composite, SWT.CHECK);
 		checkScopeStrings.setText(CHECK_SCOPE_STRING);
-		checkScopeStrings.setLayoutData(ROW_SPAN_DATA);
+		checkScopeStrings.setLayoutData(createHorizontalSpanData(2));
+
+		scopeStringErrorSeverity = new Combo(composite, SWT.READ_ONLY);
 
 		generateCommonDaoMethods = new Button(composite, SWT.CHECK);
 		generateCommonDaoMethods.setText(GENERATE_COMMON_DAO_METHOD);
@@ -165,6 +176,7 @@ public class Seasar2AssistantPropertyPage extends PropertyPage {
 			}
 		});
 
+		loadErrorLevels();
 		loadRootPackages();
 		loadStoredPreferences();
 
@@ -219,14 +231,22 @@ public class Seasar2AssistantPropertyPage extends PropertyPage {
 		ProjectPreferences preferences = ProjectPreferences.getPreference(getProject());
 		useSeasar2Assistant.setSelection(preferences.isUseSeasar2Assistant());
 		checkScopeStrings.setSelection(preferences.isCheckScopeStrings());
+		scopeStringErrorSeverity.select(preferences.getScopeStringErrorSeverity());
 		generateCommonDaoMethods.setSelection(preferences.isGenerateCommonDaoMethods());
 		rootPackage.setText(preferences.getRootPackage());
 		viewRoot.setText(preferences.getViewRoot());
 	}
 
+	private void loadErrorLevels() {
+		for (String text : SEVERITY_TEXT) {
+			scopeStringErrorSeverity.add(text);
+		}
+	}
+
 	@Override
 	protected void performDefaults() {
 		checkScopeStrings.setSelection(true);
+		scopeStringErrorSeverity.select(IMarker.SEVERITY_WARNING);
 		generateCommonDaoMethods.setSelection(true);
 		rootPackage.select(0);
 		viewRoot.setText("src/main/webapp/view");
@@ -248,6 +268,8 @@ public class Seasar2AssistantPropertyPage extends PropertyPage {
 		ProjectPreferences preferences = ProjectPreferences.getPreference(getProject());
 		preferences.setUseSeasar2Assistant(useSeasar2Assistant.getSelection());
 		preferences.setCheckScopeStrings(checkScopeStrings.getSelection());
+		preferences.setScopeStringErrorSeverity(scopeStringErrorSeverity.getSelectionIndex());
+		preferences.setScopeStringErrorSeverity(scopeStringErrorSeverity.getSelectionIndex());
 		preferences.setGenerateCommonDaoMethods(generateCommonDaoMethods.getSelection());
 		preferences.setRootPackage(rootPackage.getText());
 		preferences.setViewRoot(viewRoot.getText());
