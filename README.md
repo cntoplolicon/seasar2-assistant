@@ -5,7 +5,7 @@ Seasar2 Assistant is an Eclipse plugin to boost productivity for legacy seasar2 
 
 ### Installation ###
 
-Download the jar file and put it in *{ECLIPSE_INSTALLATION}/plugin/*. Sorry there's no update site at this time.
+Download the archive file. Open Help->Install New Software... and add the archive as update site.
 
 ### Configuration ###
 
@@ -16,7 +16,7 @@ ones. See below about other options.
 
 ### Checking Scope Strings ###
 
-Turn on **check scope declerations of properties in page class** on property page. Seasar2 Assistant will check the
+Turn on **check scope declerations of properties in page class** on property page and select the error level. **warning** is recommended. Seasar2 Assistant will check the
 existence of properties declared in `PAGE_SCOPE`, `REDIRECT_SCOPE` and `SUBAPPLICATION_SCOPE` strings when editing java
 source.
 
