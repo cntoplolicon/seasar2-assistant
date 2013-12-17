@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/seasar2_assistant_feature_1.0.1.qualifier.jar" id="seasar2_assistant_feature" version="1.0.1.qualifier" os="linux,win32" ws="gtk,win32" arch="x86,x86_64">
+      <category name="seasar2_assistant"/>
+   </feature>
+   <category-def name="seasar2_assistant" label="Seasar2 Assistant"/>
+</site>
