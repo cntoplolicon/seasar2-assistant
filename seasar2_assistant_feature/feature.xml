@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="seasar2_assistant_feature"
+      id="cntoplolicon.seasar2assist"
       label="Seasar2 Assistant"
       version="1.0.1.qualifier"
       os="linux,win32"

@@ -4,10 +4,8 @@ Bundle-Name: cntoplolicon.seasar2assist
 Bundle-SymbolicName: cntoplolicon.seasar2assist;singleton:=true
 Bundle-Version: 1.0.1.qualifier
 Bundle-Activator: cntoplolicon.seasar2assist.Seasar2AssistantPlugin
-Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime,
- org.eclipse.ui,
- org.eclipse.core.runtime
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.ui
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: org.eclipse.core.resources,
  org.eclipse.jdt.core,
